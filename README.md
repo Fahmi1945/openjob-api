@@ -50,7 +50,13 @@ API ini mencakup berbagai entitas untuk membangun aplikasi lowongan kerja:
 - **Bookmarks:** Fitur untuk menyimpan/meng-highlight lowongan kerja (simpan lowongan).
 - **Documents:** Unggah dokumen penting (mis: CV, Portofolio, Ijazah).
 
-## 🚀 Instalasi & Persiapan
+## �️ Entity-Relationship Diagram (ERD)
+
+Berikut adalah struktur rancangan database/Entitas untuk OpenJob API:
+
+![ERD OpenJob API](./ERD-OpenJob-versi-1.png)
+
+## �🚀 Instalasi & Persiapan
 
 Ikuti langkah-langkah berikut untuk menjalankan project di environment lokal (development).
 
