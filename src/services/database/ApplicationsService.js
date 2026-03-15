@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../utils/exceptions/InvariantError');
+const NotFoundError = require('../../utils/exceptions/NotFoundError');
 
 class ApplicationsService {
     constructor() {
@@ -9,7 +10,7 @@ class ApplicationsService {
 
     async addApplication(userId, payload) {
         const id = `application-${nanoid(16)}`;
-        const status = 'pending';
+        const status = payload.status || 'pending';
         const createdAt = new Date().toISOString();
         const targetJobId = payload.job_id || payload.jobId;
 
@@ -37,7 +38,7 @@ class ApplicationsService {
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Application tidak ditemukan');
+            throw new NotFoundError('Application tidak ditemukan');
         }
         return result.rows[0];
     }
@@ -67,7 +68,7 @@ class ApplicationsService {
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Gagal memperbarui status. Id tidak ditemukan');
+            throw new NotFoundError('Gagal memperbarui status. Id tidak ditemukan');
         }
     }
 
@@ -78,7 +79,7 @@ class ApplicationsService {
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Application gagal dihapus. Id tidak ditemukan');
+            throw new NotFoundError('Application gagal dihapus. Id tidak ditemukan');
         }
     }
 }

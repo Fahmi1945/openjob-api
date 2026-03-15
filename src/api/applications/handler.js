@@ -1,6 +1,7 @@
 class ApplicationsHandler {
-    constructor(service) {
+    constructor(service, validator) {
         this._service = service;
+        this._validator = validator;
         this.postApplicationHandler = this.postApplicationHandler.bind(this);
         this.getApplicationsHandler = this.getApplicationsHandler.bind(this);
         this.getApplicationByIdHandler = this.getApplicationByIdHandler.bind(this);
@@ -12,9 +13,10 @@ class ApplicationsHandler {
 
     async postApplicationHandler(req, res, next) {
         try {
+            this._validator.validateApplicationPayload(req.body);
             const userId = req.user.id;
             const applicationId = await this._service.addApplication(userId, req.body);
-            res.status(201).json({ status: 'success', data: { applicationId } });
+            res.status(201).json({ status: 'success', data: { id: applicationId } });
         } catch (error) { next(error); }
     }
 
@@ -29,7 +31,7 @@ class ApplicationsHandler {
         try {
             const { id } = req.params;
             const application = await this._service.getApplicationById(id);
-            res.status(200).json({ status: 'success', data: { application } });
+            res.status(200).json({ status: 'success', data: application });
         } catch (error) { next(error); }
     }
 
@@ -51,6 +53,7 @@ class ApplicationsHandler {
 
     async putApplicationStatusHandler(req, res, next) {
         try {
+            this._validator.validateApplicationUpdatePayload(req.body);
             const { id } = req.params;
             await this._service.editApplicationStatus(id, req.body);
             res.status(200).json({ status: 'success', message: 'Status application diperbarui' });

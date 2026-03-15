@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../utils/exceptions/InvariantError');
+const NotFoundError = require('../../utils/exceptions/NotFoundError');
 
 class BookmarksService {
     constructor() {
@@ -41,7 +42,7 @@ class BookmarksService {
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Bookmark tidak ditemukan');
+            throw new NotFoundError('Bookmark tidak ditemukan');
         }
         return result.rows[0];
     }
@@ -53,7 +54,7 @@ class BookmarksService {
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Bookmark gagal dihapus. Record tidak ditemukan');
+            throw new NotFoundError('Bookmark gagal dihapus. Record tidak ditemukan');
         }
     }
 }

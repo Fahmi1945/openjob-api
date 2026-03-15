@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../utils/exceptions/InvariantError');
+const NotFoundError = require('../../utils/exceptions/NotFoundError');
 
 class DocumentsService {
     constructor() {
@@ -33,7 +34,7 @@ class DocumentsService {
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Document tidak ditemukan');
+            throw new NotFoundError('Document tidak ditemukan');
         }
         return result.rows[0];
     }
@@ -45,7 +46,7 @@ class DocumentsService {
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Document gagal dihapus. Id tidak ditemukan');
+            throw new NotFoundError('Document gagal dihapus. Id tidak ditemukan');
         }
     }
 }

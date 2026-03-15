@@ -1,6 +1,7 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../utils/exceptions/InvariantError');
+const NotFoundError = require('../../utils/exceptions/NotFoundError');
 
 class CategoriesService {
     constructor() {
@@ -20,18 +21,18 @@ class CategoriesService {
     async getCategoryById(id) {
         const query = { text: 'SELECT * FROM categories WHERE id = $1', values: [id] };
         const result = await this._pool.query(query);
-        if (!result.rows.length) throw new InvariantError('Category tidak ditemukan');
+        if (!result.rows.length) throw new NotFoundError('Category tidak ditemukan');
         return result.rows[0];
     }
     async editCategoryById(id, { name }) {
         const query = { text: 'UPDATE categories SET name = $1 WHERE id = $2 RETURNING id', values: [name, id] };
         const result = await this._pool.query(query);
-        if (!result.rows.length) throw new InvariantError('Gagal memperbarui category. Id tidak ditemukan');
+        if (!result.rows.length) throw new NotFoundError('Gagal memperbarui category. Id tidak ditemukan');
     }
     async deleteCategoryById(id) {
         const query = { text: 'DELETE FROM categories WHERE id = $1 RETURNING id', values: [id] };
         const result = await this._pool.query(query);
-        if (!result.rows.length) throw new InvariantError('Category gagal dihapus. Id tidak ditemukan');
+        if (!result.rows.length) throw new NotFoundError('Category gagal dihapus. Id tidak ditemukan');
     }
 }
 module.exports = CategoriesService;

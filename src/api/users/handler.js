@@ -20,7 +20,7 @@ class UsersHandler {
       res.status(201).json({
         status: 'success',
         message: 'User berhasil ditambahkan',
-        data: { userId },
+        data: { id: userId },
       });
     } catch (error) {
       // Lempar ke Error Middleware
@@ -36,9 +36,7 @@ class UsersHandler {
 
       res.status(200).json({
         status: 'success',
-        data: {
-          user,
-        },
+        data: user,
       });
     } catch (error) {
       next(error);

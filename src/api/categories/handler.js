@@ -1,6 +1,7 @@
 class CategoriesHandler {
-    constructor(service) {
+    constructor(service, validator) {
         this._service = service;
+        this._validator = validator;
         this.postCategoryHandler = this.postCategoryHandler.bind(this);
         this.getCategoriesHandler = this.getCategoriesHandler.bind(this);
         this.getCategoryByIdHandler = this.getCategoryByIdHandler.bind(this);
@@ -9,8 +10,9 @@ class CategoriesHandler {
     }
     async postCategoryHandler(req, res, next) {
         try {
+            this._validator.validateCategoryPayload(req.body);
             const categoryId = await this._service.addCategory(req.body);
-            res.status(201).json({ status: 'success', data: { categoryId } });
+            res.status(201).json({ status: 'success', data: { id: categoryId } });
         } catch (error) { next(error); }
     }
     async getCategoriesHandler(req, res, next) {
@@ -23,11 +25,12 @@ class CategoriesHandler {
         try {
             const { id } = req.params;
             const category = await this._service.getCategoryById(id);
-            res.status(200).json({ status: 'success', data: { category } });
+            res.status(200).json({ status: 'success', data: category });
         } catch (error) { next(error); }
     }
     async putCategoryByIdHandler(req, res, next) {
         try {
+            this._validator.validateCategoryPayload(req.body);
             const { id } = req.params;
             await this._service.editCategoryById(id, req.body);
             res.status(200).json({ status: 'success', message: 'Category diperbarui' });

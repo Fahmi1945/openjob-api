@@ -12,7 +12,7 @@ class BookmarksHandler {
             const userId = req.user.id;
             const { jobId } = req.params;
             const bookmarkId = await this._service.addBookmark(userId, jobId);
-            res.status(201).json({ status: 'success', data: { bookmarkId } });
+            res.status(201).json({ status: 'success', data: { id: bookmarkId } });
         } catch (error) { next(error); }
     }
 
@@ -20,7 +20,7 @@ class BookmarksHandler {
         try {
             const { id } = req.params;
             const bookmark = await this._service.getBookmarkById(id);
-            res.status(200).json({ status: 'success', data: { bookmark } });
+            res.status(200).json({ status: 'success', data: bookmark });
         } catch (error) { next(error); }
     }
 

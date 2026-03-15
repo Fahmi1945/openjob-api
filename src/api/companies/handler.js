@@ -1,6 +1,7 @@
 class CompaniesHandler {
-    constructor(service) {
+    constructor(service, validator) {
         this._service = service;
+        this._validator = validator;
 
         this.postCompanyHandler = this.postCompanyHandler.bind(this);
         this.getCompaniesHandler = this.getCompaniesHandler.bind(this);
@@ -11,9 +12,10 @@ class CompaniesHandler {
 
     async postCompanyHandler(req, res, next) {
         try {
+            this._validator.validateCompanyPayload(req.body);
             const ownerId = req.user.id;
             const companyId = await this._service.addCompany({ ...req.body, owner_id: ownerId });
-            res.status(201).json({ status: 'success', data: { companyId } });
+            res.status(201).json({ status: 'success', data: { id: companyId } });
         } catch (error) { next(error); }
     }
 
@@ -28,12 +30,13 @@ class CompaniesHandler {
         try {
             const { id } = req.params;
             const company = await this._service.getCompanyById(id);
-            res.status(200).json({ status: 'success', data: { company } });
+            res.status(200).json({ status: 'success', data: company });
         } catch (error) { next(error); }
     }
 
     async putCompanyByIdHandler(req, res, next) {
         try {
+            this._validator.validateCompanyUpdatePayload(req.body);
             const { id } = req.params;
             await this._service.editCompanyById(id, req.body);
             res.status(200).json({ status: 'success', message: 'Company diperbarui' });

@@ -1,17 +1,18 @@
 const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../utils/exceptions/InvariantError');
+const NotFoundError = require('../../utils/exceptions/NotFoundError');
 
 class CompaniesService {
     constructor() {
         this._pool = new Pool();
     }
 
-    async addCompany({ name, description, owner_id }) {
+    async addCompany({ name, location, description, owner_id }) {
         const id = `company-${nanoid(16)}`;
         const query = {
-            text: 'INSERT INTO companies VALUES($1, $2, $3, $4) RETURNING id',
-            values: [id, name, description, owner_id],
+            text: 'INSERT INTO companies(id, name, location, description, owner_id) VALUES($1, $2, $3, $4, $5) RETURNING id',
+            values: [id, name, location, description, owner_id],
         };
 
         const result = await this._pool.query(query);
@@ -33,19 +34,19 @@ class CompaniesService {
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Company tidak ditemukan');
+            throw new NotFoundError('Company tidak ditemukan');
         }
         return result.rows[0];
     }
 
-    async editCompanyById(id, { name, description }) {
+    async editCompanyById(id, { name, location, description }) {
         const query = {
-            text: 'UPDATE companies SET name = $1, description = $2 WHERE id = $3 RETURNING id',
-            values: [name, description, id],
+            text: 'UPDATE companies SET name = $1, location = $2, description = $3 WHERE id = $4 RETURNING id',
+            values: [name, location, description, id],
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Gagal memperbarui company. Id tidak ditemukan');
+            throw new NotFoundError('Gagal memperbarui company. Id tidak ditemukan');
         }
     }
 
@@ -56,7 +57,7 @@ class CompaniesService {
         };
         const result = await this._pool.query(query);
         if (!result.rows.length) {
-            throw new InvariantError('Company gagal dihapus. Id tidak ditemukan');
+            throw new NotFoundError('Company gagal dihapus. Id tidak ditemukan');
         }
     }
 }

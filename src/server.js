@@ -16,11 +16,13 @@ const TokenManager = require('./utils/TokenManager');
 const jobs = require('./api/jobs/routes');
 const JobsHandler = require('./api/jobs/handler');
 const JobsService = require('./services/database/JobsService');
+const JobsValidator = require('./validator/jobs');
 
 // Import Companies
 const companies = require('./api/companies/routes');
 const CompaniesHandler = require('./api/companies/handler');
 const CompaniesService = require('./services/database/CompaniesService');
+const CompaniesValidator = require('./validator/companies');
 
 // Import Documents
 const documents = require('./api/documents/routes');
@@ -31,11 +33,13 @@ const DocumentsService = require('./services/database/DocumentsService');
 const categories = require('./api/categories/routes');
 const CategoriesHandler = require('./api/categories/handler');
 const CategoriesService = require('./services/database/CategoriesService');
+const CategoriesValidator = require('./validator/categories');
 
 // Import Applications
 const applications = require('./api/applications/routes');
 const ApplicationsHandler = require('./api/applications/handler');
 const ApplicationsService = require('./services/database/ApplicationsService');
+const ApplicationsValidator = require('./validator/applications');
 
 // Import Bookmarks
 const bookmarks = require('./api/bookmarks/routes');
@@ -60,19 +64,19 @@ const authenticationsHandler = new AuthenticationsHandler(
   AuthenticationsValidator
 );
 const jobsService = new JobsService();
-const jobsHandler = new JobsHandler(jobsService);
+const jobsHandler = new JobsHandler(jobsService, JobsValidator);
 
 const companiesService = new CompaniesService();
-const companiesHandler = new CompaniesHandler(companiesService);
+const companiesHandler = new CompaniesHandler(companiesService, CompaniesValidator);
 
 const documentsService = new DocumentsService();
 const documentsHandler = new DocumentsHandler(documentsService);
 
 const categoriesService = new CategoriesService();
-const categoriesHandler = new CategoriesHandler(categoriesService);
+const categoriesHandler = new CategoriesHandler(categoriesService, CategoriesValidator);
 
 const applicationsService = new ApplicationsService();
-const applicationsHandler = new ApplicationsHandler(applicationsService);
+const applicationsHandler = new ApplicationsHandler(applicationsService, ApplicationsValidator);
 
 const bookmarksService = new BookmarksService();
 const bookmarksHandler = new BookmarksHandler(bookmarksService);
@@ -91,14 +95,14 @@ app.use('/applications', applications(applicationsHandler));
 app.use('/', bookmarks(bookmarksHandler));
 
 // Protected Profile Endpoints (Kriteria Skilled)
-app.get('/profile', authMiddleware, (req, res) => {
-  res.json({
-    status: 'success',
-    data: {
-      userId: req.user.id,
-      message: 'Anda berhasil mengakses rute terproteksi!',
-    },
-  });
+app.get('/profile', authMiddleware, async (req, res, next) => {
+  try {
+    const user = await usersService.getUserById(req.user.id);
+    res.json({
+      status: 'success',
+      data: user,
+    });
+  } catch (error) { next(error); }
 });
 
 app.get('/profile/applications', authMiddleware, async (req, res, next) => {

@@ -3,9 +3,10 @@ const bcrypt = require('bcrypt');
 const pool = require('./db');
 const InvariantError = require('../../utils/exceptions/InvariantError'); // Kita akan buat ini nanti
 const AuthenticationError = require('../../utils/exceptions/AuthenticationError');
+const NotFoundError = require('../../utils/exceptions/NotFoundError');
 
 class UsersService {
-    async addUser({ email, password, fullname }) {
+    async addUser({ name, email, password, role = 'user' }) {
         // 1. Verifikasi email (Syarat Unique Constraint)
         await this.verifyNewEmail(email);
 
@@ -15,8 +16,8 @@ class UsersService {
 
         // 3. Masukkan ke database
         const query = {
-            text: 'INSERT INTO users VALUES($1, $2, $3, $4) RETURNING id',
-            values: [id, email, hashedPassword, fullname],
+            text: 'INSERT INTO users(id, name, email, password, role) VALUES($1, $2, $3, $4, $5) RETURNING id',
+            values: [id, name, email, hashedPassword, role],
         };
 
         const result = await pool.query(query);
@@ -64,14 +65,14 @@ class UsersService {
 
     async getUserById(userId) {
         const query = {
-            text: 'SELECT id, email, fullname FROM users WHERE id = $1',
+            text: 'SELECT id, email, name, role FROM users WHERE id = $1',
             values: [userId],
         };
 
         const result = await pool.query(query);
 
         if (!result.rows.length) {
-            throw new InvariantError('User tidak ditemukan');
+            throw new NotFoundError('User tidak ditemukan');
         }
 
         return result.rows[0];

@@ -1,6 +1,7 @@
 class JobsHandler {
-    constructor(service) {
+    constructor(service, validator) {
         this._service = service;
+        this._validator = validator;
 
         this.postJobHandler = this.postJobHandler.bind(this);
         this.getJobsHandler = this.getJobsHandler.bind(this);
@@ -13,8 +14,9 @@ class JobsHandler {
 
     async postJobHandler(req, res, next) {
         try {
+            this._validator.validateJobPayload(req.body);
             const jobId = await this._service.addJob(req.body);
-            res.status(201).json({ status: 'success', data: { jobId } });
+            res.status(201).json({ status: 'success', data: { id: jobId } });
         } catch (error) { next(error); }
     }
 
@@ -30,7 +32,7 @@ class JobsHandler {
         try {
             const { id } = req.params;
             const job = await this._service.getJobById(id);
-            res.status(200).json({ status: 'success', data: { job } });
+            res.status(200).json({ status: 'success', data: job });
         } catch (error) { next(error); }
     }
 
@@ -52,6 +54,7 @@ class JobsHandler {
 
     async putJobByIdHandler(req, res, next) {
         try {
+            this._validator.validateJobUpdatePayload(req.body);
             const { id } = req.params;
             await this._service.editJobById(id, req.body);
             res.status(200).json({ status: 'success', message: 'Job diperbarui' });

@@ -11,7 +11,7 @@ class DocumentsHandler {
     async postDocumentHandler(req, res, next) {
         try {
             if (!req.file) {
-                return res.status(400).json({ status: 'fail', message: 'Tidak ada dokumen yang diunggah' });
+                return res.status(400).json({ status: 'failed', message: 'Tidak ada dokumen yang diunggah' });
             }
 
             const userId = req.user.id; // From authMiddleware
